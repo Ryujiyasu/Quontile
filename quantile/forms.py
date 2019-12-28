@@ -44,3 +44,12 @@ class QuantileForm(forms.Form):
     choices = LIBRARIES_CHOICES,
     required = True,
     )
+    choice4 = forms.ChoiceField(
+    label="選択",
+    widget = forms.Select,
+        choices=(
+            ('max', '四分位範囲最大を求める'),
+            ('min', '四分位範囲最小を求める'),
+        ),
+    required = True,
+    )
