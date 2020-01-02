@@ -60,11 +60,6 @@ def calculate(file,number,base,choice1,choice2,base2,choice3,choice4):
             list.append(item)
             center.append(q[1])
 
-
-
-
-
-
     if choice4=="max":
         max_index = list_quantile.index(max(list_quantile))
         max_company = []
@@ -90,18 +85,36 @@ def calculate(file,number,base,choice1,choice2,base2,choice3,choice4):
         df_tempdata["四分位幅最小値"][1:] = ""
         df_tempdata["四分位幅最小の組み合わせの中央値"][1:] = ""
 
-
-
-
-
-
-
-
     df_tempdata=pd.merge(df_tempdata,df_data_2,on="Comparable Taxpayer")
-    df_output=pd.concat([df_output,df_tempdata],axis=1)
+    df_tempdata = df_tempdata.set_index("Comparable Taxpayer")
+    df_tempdata.loc['Minimum'] = ""
+    df_tempdata.loc['Lower Quartile'] = ""
+    df_tempdata.loc['Median'] = ""
+    df_tempdata.loc['Mean'] = ""
+    df_tempdata.loc['Upper Quartile'] = ""
+    df_tempdata.loc['Maximum'] = ""
+    for i in range(len(df_tempdata.columns)-3):
+        list=[]
+        for k in df_tempdata.iloc[:,3+i]:
+            try:
+                list.append(float(k.replace("%", "")))
+            except:
+                pass
+        print(list)
+        list=np.array(list)
+
+        df_tempdata.loc["Minimum",df_tempdata.iloc[:,3+i].name]=str(list.min())+"%"
+        if len(list) >= 7:
+            q = statistics.quantiles(list, n=4)
+            df_tempdata.loc["Lower Quartile", df_tempdata.iloc[:, 3 + i].name] = str(q[0]) + "%"
+            df_tempdata.loc["Median", df_tempdata.iloc[:, 3 + i].name] = str(q[1]) + "%"
+            df_tempdata.loc["Upper Quartile", df_tempdata.iloc[:, 3 + i].name] = str(q[2]) + "%"
+        df_tempdata.loc["Mean", df_tempdata.iloc[:, 3 + i].name] = str(round(list.mean(),2)) + "%"
+        df_tempdata.loc["Maximum", df_tempdata.iloc[:, 3 + i].name] = str(list.max()) + "%"
+
     file_name = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     data_name="media/" + file_name + "_output.xlsx"
-    df_output.to_excel(data_name)
+    df_tempdata.to_excel(data_name)
 
     return data_name
 
